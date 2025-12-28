@@ -29,15 +29,15 @@ location in src/pythonGui and its subtrees.
 
 The supported OS are:
 
-> Ubuntu 22.04/24.04 LTS
-> RedHat 9
-> In Development macOS arm64
+- Ubuntu 22.04/24.04 LTS 
+- RedHat 9 
+- **_In Development macOS arm64_**
 
 The GUI application is available under:
 
-> Ubuntu 22.04/24.04 LTS
-> Windows 10/11
-> MacOSX
+- Ubuntu 22.04/24.04 LTS 
+- Windows 10/11 
+- MacOSX
 
 
 
