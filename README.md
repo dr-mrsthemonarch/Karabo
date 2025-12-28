@@ -31,6 +31,7 @@ The supported OS are:
 
 > Ubuntu 22.04/24.04 LTS
 > RedHat 9
+> In Development macOS arm64
 
 The GUI application is available under:
 
@@ -38,62 +39,6 @@ The GUI application is available under:
 > Windows 10/11
 > MacOSX
 
-# Installation
-
-Karabo is available on (PyPi)[https://pypi.org/project/karabo/]. You can
-install a full standalone version using
-
-```
-pip install 'karabo[full]'
-```
-
-or only Python runtimes for the middlelayer (Karathon) API:
 
 
-```
-pip install 'karabo[karathon]'
-```
-
-Development of Python devices against such installations is straight-forward,
-assuming you add the correct entry-points to your device's `pyproject.toml`.
-If you intend to develop C++ devices, please use the self-consistent
-build described below.
-
-## GUI
-
-The GUI should be installed separately (and into a separate environment):
-
-```
-pip install 'karabo.gui'
-```
-
-
-# Building
-
-## Building from command-line ###
-
-The quickest way to build the Karabo framework is by using
-the `auto_build_all.sh` script. Simply execute:
-
-    ./auto_build_all.sh
-
-and get informed how to use this script. The build of the C++ components of the
-Karabo framework is controlled by the CMake project at `src/CMakeLists.txt`.
-Tests have shown that the builds are performed faster when `ninja` is used as
-the CMake generator. If `ninja` is available on your Linux installation, the
-build uses it instead of the default `Unix Makefiles` generator.
-
-
-# Documentation
-
-An extensive documentation is available in the `doc` folder. Build the
-documentation using
-
-    cd doc
-    pip install -r requirements.txt
-    make html
-
-Or use the documentation available at
-this [link](https://karabo.pages.xfel.eu/Framework/index.html)
-
-Thank you for using Karabo!
+So Out of my boredom and need to make something that might be somewhat useful to others, I decided to try to port Karabo to macOS.

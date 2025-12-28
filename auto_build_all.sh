@@ -71,7 +71,7 @@ checkCppUnitTestResults() {
     activateKarabo
     local mergeArgs=""
     safeRunCommand "python -m pip install --upgrade ${scriptDir}/ci/utils/cppunitxmlparser/."
-    for name in $(ls ${FRAMEWORK_BUILD_DIR}/karabo/*/testresults/*.xml); do
+    for name in $(ls ${FRAMEWORK_BUILD_DIR}/karabo/*/testresults/*.xml 2>/dev/null); do
         mergeArgs="${mergeArgs} ${name}"
     done
     if [[ ${mergeArgs} = "" ]]; then
@@ -178,7 +178,7 @@ producePythonCodeCoverageReport() {
 }
 
 # Make sure the script runs in the correct directory
-scriptDir=$(dirname `[[ $0 = /* ]] && echo "$0" || echo "$PWD/${0#./}"`)
+scriptDir=$(dirname "$(greadlink -f "${BASH_SOURCE[0]}" 2>/dev/null || readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")")
 cd ${scriptDir}
 if [ $? -ne 0 ]; then
     echo " Could not change directory to ${scriptDir}"
@@ -228,13 +228,20 @@ fi
 # Get some information about our system
 TARGET_ARCH=$(uname -m)
 OS=$(uname -s)
-source "$scriptDir/set_lsb_release_info.sh"
-if [ "$OS" = "Linux" ]; then
+
+# Use system information to determine OS details
+if [ "$OS" = "Darwin" ]; then
+    # macOS specific settings
+    DISTRO_ID="macOS"
+    DISTRO_RELEASE=$(sw_vers -productVersion | cut -d. -f1)
+    # Use sysctl for CPU count on macOS
+    CPU_COUNT=$(sysctl -n hw.ncpu)
+else
+    # Linux specific settings
     DISTRO_ID=$LSB_RELEASE_DIST
     DISTRO_RELEASE=$(echo $LSB_RELEASE_VERSION | sed -r "s/^([0-9]+).*/\1/")
-else
-    echo "Karabo Framework is currently supported only on Linux"
-    exit 1
+    # Use proc filesystem for CPU count on Linux
+    CPU_COUNT=$(grep "processor" /proc/cpuinfo | wc -l)
 fi
 
 # External dependencies have to be outside the source tree. This is
@@ -348,17 +355,17 @@ while [ -n "$1" ]; do
     shift
 done
 
-if [[ $BASH_VERSINFO -lt 4 ]]; then
-    echo "Bash version 4 or higher required"
-    exit 1
-fi
+#if [[ $BASH_VERSINFO -lt 4 ]]; then
+#    echo "Bash version 4 or higher required"
+#    exit 1
+#fi
 
 if [ "$NUM_JOBS" = "0" ]; then
     # numJobs not specified in command-line;
     if [ -z "$NUM_COMPILE_JOBS" ]; then
        # numJobs not specified in NUM_COMPILE_JOBS environment variable; use
        # the number of active cores as the final fallback strategy.
-       NUM_JOBS=`grep "processor" /proc/cpuinfo | wc -l`
+       NUM_JOBS=$CPU_COUNT
     else
        NUM_JOBS=$NUM_COMPILE_JOBS
     fi
