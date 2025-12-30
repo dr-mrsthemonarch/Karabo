@@ -71,49 +71,86 @@ set(KARABO_VERSION_MAJOR "0")
 set(KARABO_VERSION_MINOR "0")
 set(KARABO_VERSION_PATCH "0")
 find_package(Git)
+#if(GIT_FOUND)
+#  execute_process(
+#    COMMAND ${GIT_EXECUTABLE} describe --tags --match "[0-9]*.[0-9]*.[0-9]*" --dirty --always
+#    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../.."
+#    RESULT_VARIABLE result
+#    OUTPUT_VARIABLE KARABO_VERSION
+#    ERROR_QUIET
+#    OUTPUT_STRIP_TRAILING_WHITESPACE
+#  )
+#  if (result)
+#      message(
+#          FATAL_ERROR
+#          "Error resolving Karabo Version from Git: ${result}"
+#      )
+#  endif()
+#  message(STATUS "Karabo Version: ${KARABO_VERSION}")
+#  # Extracts Major, Minor and Patch version parts to feed into the project -
+#  # relies on matching format passed to the git command line.
+#  string(FIND ${KARABO_VERSION} "." ST_PERIOD_POS)
+#  math(EXPR MINOR_VERSION_START "${ST_PERIOD_POS} + 1")
+#  string(SUBSTRING ${KARABO_VERSION} ${MINOR_VERSION_START} -1 VERSION_NO_MAJOR)
+#  string(FIND ${VERSION_NO_MAJOR} "." ND_PERIOD_POS)
+#  string(SUBSTRING ${KARABO_VERSION} 0 ${ST_PERIOD_POS} KARABO_VERSION_MAJOR)
+#  string(SUBSTRING ${VERSION_NO_MAJOR} 0 ${ND_PERIOD_POS} KARABO_VERSION_MINOR)
+#  # The Patch version number is assumed to be everything after the minor version
+#  # From the match used to match the Git tag it is safe to assume that there is
+#  # content after the minor version.
+#  math(EXPR PATCH_VERSION_START "${ND_PERIOD_POS} + 1")
+#  string(SUBSTRING ${VERSION_NO_MAJOR} ${PATCH_VERSION_START} -1 VERSION_NO_MINOR)
+#  # Gets just the initial sequence of digits for the patch version. CMake does
+#  # not accept non-digits as parts of a project version.
+#  string(REGEX MATCH "^[0-9]+" PATCH_VERSION ${VERSION_NO_MINOR})
+#  if (PATCH_VERSION)
+#    set(KARABO_VERSION_PATCH ${PATCH_VERSION})
+#  endif()
+#  message(STATUS "Karabo Version Major: ${KARABO_VERSION_MAJOR}")
+#  message(STATUS "Karabo Version Minor: ${KARABO_VERSION_MINOR}")
+#  message(STATUS "Karabo Version Patch: ${KARABO_VERSION_PATCH}")
+#else()
+#  message(FATAL_ERROR
+#          "Git package not found"
+#  )
+#endif()
+
+message(STATUS "Resolving Karabo Version from Git repository")
+
+set(KARABO_VERSION_MAJOR 0)
+set(KARABO_VERSION_MINOR 0)
+set(KARABO_VERSION_PATCH 0)
+set(KARABO_VERSION "0.0.0")
+
+find_package(Git QUIET)
+
 if(GIT_FOUND)
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} describe --tags --match "[0-9]*.[0-9]*.[0-9]*" --dirty --always
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../.."
-    RESULT_VARIABLE result
-    OUTPUT_VARIABLE KARABO_VERSION
-    ERROR_QUIET
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-  if (result)
-      message(
-          FATAL_ERROR
-          "Error resolving Karabo Version from Git: ${result}"
-      )
-  endif()
-  message(STATUS "Karabo Version: ${KARABO_VERSION}")
-  # Extracts Major, Minor and Patch version parts to feed into the project -
-  # relies on matching format passed to the git command line.
-  string(FIND ${KARABO_VERSION} "." ST_PERIOD_POS)
-  math(EXPR MINOR_VERSION_START "${ST_PERIOD_POS} + 1")
-  string(SUBSTRING ${KARABO_VERSION} ${MINOR_VERSION_START} -1 VERSION_NO_MAJOR)
-  string(FIND ${VERSION_NO_MAJOR} "." ND_PERIOD_POS)
-  string(SUBSTRING ${KARABO_VERSION} 0 ${ST_PERIOD_POS} KARABO_VERSION_MAJOR)
-  string(SUBSTRING ${VERSION_NO_MAJOR} 0 ${ND_PERIOD_POS} KARABO_VERSION_MINOR)
-  # The Patch version number is assumed to be everything after the minor version
-  # From the match used to match the Git tag it is safe to assume that there is
-  # content after the minor version.
-  math(EXPR PATCH_VERSION_START "${ND_PERIOD_POS} + 1")
-  string(SUBSTRING ${VERSION_NO_MAJOR} ${PATCH_VERSION_START} -1 VERSION_NO_MINOR)
-  # Gets just the initial sequence of digits for the patch version. CMake does
-  # not accept non-digits as parts of a project version.
-  string(REGEX MATCH "^[0-9]+" PATCH_VERSION ${VERSION_NO_MINOR})
-  if (PATCH_VERSION)
-    set(KARABO_VERSION_PATCH ${PATCH_VERSION})
-  endif()
-  message(STATUS "Karabo Version Major: ${KARABO_VERSION_MAJOR}")
-  message(STATUS "Karabo Version Minor: ${KARABO_VERSION_MINOR}")
-  message(STATUS "Karabo Version Patch: ${KARABO_VERSION_PATCH}")
+    execute_process(
+            COMMAND ${GIT_EXECUTABLE} describe --tags --match "[0-9]*.[0-9]*.[0-9]*"
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../.."
+            RESULT_VARIABLE GIT_DESCRIBE_RESULT
+            OUTPUT_VARIABLE GIT_DESCRIBE_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_QUIET
+    )
+
+    if(GIT_DESCRIBE_RESULT EQUAL 0)
+        set(KARABO_VERSION "${GIT_DESCRIBE_VERSION}")
+        string(REPLACE "." ";" VERSION_LIST "${KARABO_VERSION}")
+        list(GET VERSION_LIST 0 KARABO_VERSION_MAJOR)
+        list(GET VERSION_LIST 1 KARABO_VERSION_MINOR)
+        list(GET VERSION_LIST 2 KARABO_VERSION_PATCH)
+    else()
+        message(WARNING
+                "No semantic version Git tag found (likely a fork). "
+                "Using version ${KARABO_VERSION}"
+        )
+    endif()
 else()
-  message(FATAL_ERROR
-          "Git package not found"
-  )
+    message(WARNING "Git not found, using default version ${KARABO_VERSION}")
 endif()
+
+message(STATUS "Karabo Version: ${KARABO_VERSION}")
 
 # Create header with version macros from its template.
 # Yes, we place the generated header into the source code directory...

@@ -461,17 +461,9 @@ pushd $FRAMEWORK_BUILD_DIR
 # NOTE:
 # Please keep in sync with the cmake.configureSettings generated in
 # build/karabo/setupVSCodeCMake.py.
-safeRunCommand cmake -DCMAKE_PREFIX_PATH=$EXTERN_DEPS_DIR \
-#safeRunCommand $EXTERN_DEPS_DIR/bin/cmake -DCMAKE_PREFIX_PATH=$EXTERN_DEPS_DIR \
-    -DBUILD_UNIT_TESTING=$BUILD_UNIT_TESTING \
-    -DBUILD_INTEGRATION_TESTING=$BUILD_INTEGRATION_TESTING \
-    -DBUILD_LONG_RUN_TESTING=$BUILD_LONG_RUN_TESTING \
-    -DGEN_CODE_COVERAGE=$GEN_CODE_COVERAGE \
-    -DCMAKE_MAP_IMPORTED_CONFIG_DEBUG=Release \
-    -DCMAKE_TOOLCHAIN_FILE=$EXTERN_DEPS_DIR/conan_toolchain/conan_toolchain.cmake \
-    -DCMAKE_INSTALL_PREFIX=$FRAMEWORK_INSTALL_DIR \
-    -DCMAKE_BUILD_TYPE=$CMAKE_CONF \
-    $scriptDir/src/.
+
+#safeRunCommand $EXTERN_DEPS_DIR/bin/cmake -DCMAKE_PREFIX_PATH=$EXTERN_DEPS_DIR -DCMAKE_C_COMPILER=/opt/local/bin/clang -DCMAKE_CXX_COMPILER=/opt/local/bin/clang++ -DBUILD_UNIT_TESTING=$BUILD_UNIT_TESTING -DBUILD_INTEGRATION_TESTING=$BUILD_INTEGRATION_TESTING -DBUILD_LONG_RUN_TESTING=$BUILD_LONG_RUN_TESTING -DGEN_CODE_COVERAGE=$GEN_CODE_COVERAGE -DCMAKE_MAP_IMPORTED_CONFIG_DEBUG=Release -DCMAKE_TOOLCHAIN_FILE=$EXTERN_DEPS_DIR/conan_toolchain/conan_toolchain.cmake -DCMAKE_INSTALL_PREFIX=$FRAMEWORK_INSTALL_DIR -DCMAKE_BUILD_TYPE=$CMAKE_CONF $scriptDir/src/.
+safeRunCommand cmake -DCMAKE_PREFIX_PATH=$EXTERN_DEPS_DIR -DCMAKE_C_COMPILER=/opt/local/bin/clang -DCMAKE_CXX_COMPILER=/opt/local/bin/clang++ -DBUILD_UNIT_TESTING=$BUILD_UNIT_TESTING -DBUILD_INTEGRATION_TESTING=$BUILD_INTEGRATION_TESTING -DBUILD_LONG_RUN_TESTING=$BUILD_LONG_RUN_TESTING -DGEN_CODE_COVERAGE=$GEN_CODE_COVERAGE -DCMAKE_MAP_IMPORTED_CONFIG_DEBUG=Release -DCMAKE_TOOLCHAIN_FILE=$EXTERN_DEPS_DIR/conan_toolchain/conan_toolchain.cmake -DCMAKE_INSTALL_PREFIX=$FRAMEWORK_INSTALL_DIR -DCMAKE_BUILD_TYPE=$CMAKE_CONF $scriptDir/src/.
 
 if [ $? -ne 0 ]; then
     echo
@@ -497,7 +489,8 @@ fi
 
 # Builds libkarabo, libkarabind, karabo-* utilities
 # and installs them in FRAMEWORK_INSTALL_DIR.
-safeRunCommand $EXTERN_DEPS_DIR/bin/cmake --build . -j $NUM_JOBS --target install
+#safeRunCommand $EXTERN_DEPS_DIR/bin/cmake --build . -j $NUM_JOBS --target install
+safeRunCommand cmake --build . -j $NUM_JOBS --target install
 if [ $? -ne 0 ]; then
     echo
     echo "#### Error on cmake project building phase. Exiting. ####"
@@ -531,7 +524,8 @@ if [ "$GEN_CODE_COVERAGE" = "1" ]; then
     # When GEN_CODE_COVERAGE is true, the cmake configuration phase generates
     # a 'test_coverage_report' target, than when built runs the tests and
     # generates the coverage report.
-    $EXTERN_DEPS_DIR/bin/cmake --build . -j $NUM_JOBS --target test_coverage_report
+#    $EXTERN_DEPS_DIR/bin/cmake --build . -j $NUM_JOBS --target test_coverage_report
+    cmake --build . -j $NUM_JOBS --target test_coverage_report
     deactivateKarabo
     # Generate the coverage report for the Python tests - all of them.
     producePythonCodeCoverageReport
