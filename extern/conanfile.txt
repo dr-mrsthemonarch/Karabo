@@ -31,9 +31,9 @@ libjpeg/9e
 libtiff/4.3.0
 
 # conan v1
-# nss/3.93
+ nss/3.119
 # conan v2
-nss/3.93@karabo/py312
+#nss/3.93@karabo/py312
 
 # forced - these are pinned to allow conan to resolve dependency conflicts
 sqlite3/3.41.2
@@ -72,3 +72,4 @@ boost/*:without_thread=False
 boost/*:without_system=False
 boost/*:without_program_options=False
 boost/*:without_python=True
+boost/*:without_cobalt=True

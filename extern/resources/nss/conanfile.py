@@ -61,8 +61,8 @@ class NSSConan(ConanFile):
             raise ConanInvalidConfiguration("NSS recipes does not support MTd runtime. Contributions are welcome.")
         if not self.dependencies["sqlite3"].options.shared:
             raise ConanInvalidConfiguration("NSS cannot link to static sqlite. Please use option sqlite3:shared=True")
-        if self.settings.arch in ["armv8", "armv8.3"] and self.settings.os in ["Macos"]:
-            raise ConanInvalidConfiguration("Macos ARM64 builds not yet supported. Contributions are welcome.")
+        # if self.settings.arch in ["armv8", "armv8.3"] and self.settings.os in ["Macos"]:
+        #     raise ConanInvalidConfiguration("Macos ARM64 builds not yet supported. Contributions are welcome.")
         if Version(self.version) < "3.74":
             if self.settings.compiler == "clang" and Version(self.settings.compiler.version) >= 13:
                 raise ConanInvalidConfiguration("nss < 3.74 requires clang < 13 .")
@@ -96,7 +96,15 @@ class NSSConan(ConanFile):
         }
 
         args.append("OS_TARGET=%s" % os_map.get(str(self.settings.os), "UNSUPPORTED_OS"))
-        args.append("OS_ARCH=%s" % os_map.get(str(self.settings.os), "UNSUPPORTED_OS"))
+        # args.append("OS_ARCH=%s" % os_map.get(str(self.settings.os), "UNSUPPORTED_OS"))
+        if self.settings.os == "Macos":
+            if self.settings.arch in ["armv8", "armv8.3"]:
+                args.append("OS_ARCH=arm64")
+                args.append("NS_USE_NATIVE_TOOLCHAIN=1")
+            elif self.settings.arch == "x86_64":
+                args.append("OS_ARCH==x86_64")
+        else:
+            args.append("OS_ARCH=%s" % os_map.get(str(self.settings.os), "UNSUPPORTED_OS"))
         if self.settings.build_type != "Debug":
             args.append("BUILD_OPT=1")
 

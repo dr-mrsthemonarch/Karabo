@@ -147,9 +147,8 @@ install_python() {
 
     safeRunCommandQuiet "conan install conanfile-bootstrap.txt $folder_opts $build_opts $profile_opts"
 
-    # ensure that python can always find its libpython.so
-    safeRunCommand "$INSTALL_PREFIX/bin/patchelf --force-rpath --set-rpath '\$ORIGIN/../lib' $INSTALL_PREFIX/bin/python3.12"
-
+    # ensure that python can always find its libpython.dylib
+    safeRunCommand "install_name_tool -add_rpath @loader_path/../lib $INSTALL_PREFIX/bin/python3.12"
     # use pip in INSTALL_PREFIX by calling python3 -m pip <args>
     local pip_install_cmd="$INSTALL_PREFIX/bin/python3 -m pip install"
 
@@ -196,7 +195,7 @@ install_from_deps() {
 
     # fix rpaths
     # Relocate the libraries/executables
-    safeRunCommand "find $INSTALL_PREFIX/lib -maxdepth 1 -name '*.so' -exec $INSTALL_PREFIX/bin/patchelf --force-rpath --set-rpath '\$ORIGIN/../lib' {} \;"
+    safeRunCommand "find \"$INSTALL_PREFIX/lib\" -maxdepth 1 -name \"*.dylib\" -exec install_name_tool -add_rpath @loader_path/../lib {} \;"
     safeRunCommandQuiet "./relocate_deps.sh $INSTALL_PREFIX"
 
     # for whatever reason conan does not reliably copy *.pc files from its root directory

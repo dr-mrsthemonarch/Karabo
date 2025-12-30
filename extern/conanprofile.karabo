@@ -2,7 +2,7 @@ include(default)
 
 [settings]
 build_type=Release
-compiler.libcxx=libstdc++11
+compiler.libcxx=libc++
 compiler.cppstd=20
 
 # [env]
