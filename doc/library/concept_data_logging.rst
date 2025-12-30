@@ -33,7 +33,7 @@ configuration file using the text file based backend is presented below:
 
 .. code-block:: bash
 
-   #!/bin/bash
+   #!/opt/local/bin/bash
    # This file is part of the initial configuration of Karabo
    cd $KARABO/var/data
    exec envdir $KARABO/var/environment karabo-cppserver serverId=karabo/dataLoggerManager \
@@ -46,7 +46,7 @@ An example of a run configuration file using the InfluxDB based backend:
 
 .. code-block:: bash
 
-   #!/bin/bash
+   #!/opt/local/bin/bash
    # Copyright (C) European XFEL GmbH Schenefeld. All rights reserved.
    # This file is part of the initial configuration of Karabo
    cd $KARABO/var/data

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/local/bin/bash
 # This file is part of Karabo.
 #
 # http://www.karabo.eu
@@ -72,7 +72,7 @@ cd $PACKAGEDIR
 safeRunCommand "tar -zcf ${PACKAGENAME}.tar.gz *.so"
 
 # Create installation script
-echo -e '#!/bin/bash\n'"VERSION=$REPO_TAG\nPLUGINNAME=$PLUGINNAME\nKARABOVERSION=$KARABOVERSION" | cat - $EXTRACT_SCRIPT ${PACKAGENAME}.tar.gz > $INSTALLSCRIPT
+echo -e '#!/opt/local/bin/bash\n'"VERSION=$REPO_TAG\nPLUGINNAME=$PLUGINNAME\nKARABOVERSION=$KARABOVERSION" | cat - $EXTRACT_SCRIPT ${PACKAGENAME}.tar.gz > $INSTALLSCRIPT
 chmod a+x $INSTALLSCRIPT
 
 # Clean up

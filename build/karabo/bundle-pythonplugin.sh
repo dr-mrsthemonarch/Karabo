@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/local/bin/bash
 # This file is part of Karabo.
 #
 # http://www.karabo.eu
@@ -115,7 +115,7 @@ fi
 if [ -e $(pwd)/custom.sh ]; then $(pwd)/custom.sh; fi
 
 # Create installation script
-echo -e '#!/bin/bash\n'"VERSION=$REPO_TAG\nPLUGINNAME=$PLUGINNAME\nKARABOVERSION=$KARABOVERSION\nWHEELNAME=$WHEELNAME" | cat - $EXTRACT_SCRIPT dist/$WHEELNAME > $INSTALLSCRIPT
+echo -e '#!/opt/local/bin/bash\n'"VERSION=$REPO_TAG\nPLUGINNAME=$PLUGINNAME\nKARABOVERSION=$KARABOVERSION\nWHEELNAME=$WHEELNAME" | cat - $EXTRACT_SCRIPT dist/$WHEELNAME > $INSTALLSCRIPT
 chmod a+x $INSTALLSCRIPT
 
 

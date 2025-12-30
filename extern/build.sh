@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/local/bin/bash
 
 ##############################################################################
 # Packages that we know how to build
@@ -20,6 +20,35 @@ declare -A CONAN_MIRRORS=(
 
 ##############################################################################
 # Define a bunch of functions to be called later
+
+add_rpath_if_needed() {
+    local file="$1"
+    if [ ! -f "$file" ]; then
+        echo "File not found: $file"
+        return 1
+    fi
+
+    # Check if it's a Mach-O binary (executable or dylib)
+    if ! file "$file" 2>/dev/null | grep -q "Mach-O"; then
+        echo "Not a Mach-O binary: $(basename $file)"
+        return 0  # Not an error, just skip
+    fi
+
+    # Check if RPATH already exists
+    if otool -l "$file" 2>/dev/null | grep -q "LC_RPATH.*@loader_path/../lib"; then
+        echo "RPATH already exists in $(basename $file)"
+        return 0
+    fi
+
+    # Add RPATH
+    if install_name_tool -add_rpath @loader_path/../lib "$file"; then
+        echo "Added RPATH to $(basename $file)"
+        return 0
+    else
+        echo "Failed to add RPATH to $(basename $file)"
+        return 1
+    fi
+}
 
 check_for() {
     which $1 &>/dev/null
@@ -148,7 +177,8 @@ install_python() {
     safeRunCommandQuiet "conan install conanfile-bootstrap.txt $folder_opts $build_opts $profile_opts"
 
     # ensure that python can always find its libpython.dylib
-    safeRunCommand "install_name_tool -add_rpath @loader_path/../lib $INSTALL_PREFIX/bin/python3.12"
+#    safeRunCommand "install_name_tool -add_rpath @loader_path/../lib $INSTALL_PREFIX/bin/python3.12"
+    add_rpath_if_needed "$INSTALL_PREFIX/bin/python3.12"
     # use pip in INSTALL_PREFIX by calling python3 -m pip <args>
     local pip_install_cmd="$INSTALL_PREFIX/bin/python3 -m pip install"
 
@@ -195,7 +225,8 @@ install_from_deps() {
 
     # fix rpaths
     # Relocate the libraries/executables
-    safeRunCommand "find \"$INSTALL_PREFIX/lib\" -maxdepth 1 -name \"*.dylib\" -exec install_name_tool -add_rpath @loader_path/../lib {} \;"
+#    safeRunCommand "find \"$INSTALL_PREFIX/lib\" -maxdepth 1 -name \"*.dylib\" -exec install_name_tool -add_rpath @loader_path/../lib {} \;"
+    safeRunCommand "find \"\$INSTALL_PREFIX/lib\" -maxdepth 1 -name \"*.dylib\" -exec bash -c 'add_rpath_if_needed \"\$0\"' {} \;"
     safeRunCommandQuiet "./relocate_deps.sh $INSTALL_PREFIX"
 
     # for whatever reason conan does not reliably copy *.pc files from its root directory
@@ -205,11 +236,17 @@ install_from_deps() {
     cp $INSTALL_PREFIX/conan_toolchain/*.pc $INSTALL_PREFIX/lib/pkgconfig/
     # now fix occurences of prefixes such that packages can use the "--define-prefix" option
     # of pkgconfig
-    sed -i 's|prefix=.*|prefix=\${KARABO}/extern|g' $INSTALL_PREFIX/lib/pkgconfig/*.pc
-    sed -i 's|libdir=.*|libdir=\${prefix}/lib|g' $INSTALL_PREFIX/lib/pkgconfig/*.pc
-    sed -i 's|includedir=.*|includedir=\${prefix}/include|g' $INSTALL_PREFIX/lib/pkgconfig/*.pc
-    sed -i 's|exec_prefix=.*|exec_prefix=\${prefix}|g' $INSTALL_PREFIX/lib/pkgconfig/*.pc
-
+    if [[ "$(uname)" == "Darwin" ]]; then
+      sed -i '' 's|prefix=.*|prefix=\${KARABO}/extern|g' $INSTALL_PREFIX/lib/pkgconfig/*.pc
+      sed -i '' 's|libdir=.*|libdir=\${prefix}/lib|g' $INSTALL_PREFIX/lib/pkgconfig/*.pc
+      sed -i '' 's|includedir=.*|includedir=\${prefix}/include|g' $INSTALL_PREFIX/lib/pkgconfig/*.pc
+      sed -i '' 's|exec_prefix=.*|exec_prefix=\${prefix}|g' $INSTALL_PREFIX/lib/pkgconfig/*.pc
+    else
+      sed -i 's|prefix=.*|prefix=\${KARABO}/extern|g' $INSTALL_PREFIX/lib/pkgconfig/*.pc
+      sed -i 's|libdir=.*|libdir=\${prefix}/lib|g' $INSTALL_PREFIX/lib/pkgconfig/*.pc
+      sed -i 's|includedir=.*|includedir=\${prefix}/include|g' $INSTALL_PREFIX/lib/pkgconfig/*.pc
+      sed -i 's|exec_prefix=.*|exec_prefix=\${prefix}|g' $INSTALL_PREFIX/lib/pkgconfig/*.pc
+    fi
     popd
 }
 
@@ -228,7 +265,7 @@ usage() {
 
 ##############################################################################
 # We start executing here
-
+export -f add_rpath_if_needed
 # Parse command line args (anything starting with '-')
 BUILD_PACKAGE="n"
 QUIET=""

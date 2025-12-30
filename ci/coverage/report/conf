@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/local/bin/bash
 
 get_abs_path() {
 	echo `cd "$1"; pwd`

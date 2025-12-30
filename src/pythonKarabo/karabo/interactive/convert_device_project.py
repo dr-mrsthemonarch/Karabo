@@ -25,7 +25,7 @@ from contextlib import contextmanager
 from karabo.bound import PythonDevice
 
 BUILD_PACKAGE_FILE = r"""\
-#!/bin/bash
+#!/opt/local/bin/bash
 
 if [ -z $KARABO ]; then
   echo "\$KARABO is not defined. Make sure you have sourced the activate\

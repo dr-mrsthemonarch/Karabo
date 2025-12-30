@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/local/bin/bash
 # This file is intended to be used together with Karabo:
 #
 # http://www.karabo.eu

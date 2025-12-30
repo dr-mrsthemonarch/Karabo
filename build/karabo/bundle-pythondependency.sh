@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/local/bin/bash
 # This file is part of Karabo.
 #
 # http://www.karabo.eu
@@ -74,7 +74,7 @@ fi
 
 # Create a self-extracting installation script
 REPO_TAG=$(git rev-parse --short HEAD)
-echo -e '#!/bin/bash\n'"VERSION=$REPO_TAG\nDEPNAME=$DEPNAME\nKARABOVERSION=$KARABOVERSION\nWHEELNAME=$WHEELNAME" | cat - $EXTRACT_SCRIPT $WHEELFILE > $INSTALLSCRIPT
+echo -e '#!/opt/local/bin/bash\n'"VERSION=$REPO_TAG\nDEPNAME=$DEPNAME\nKARABOVERSION=$KARABOVERSION\nWHEELNAME=$WHEELNAME" | cat - $EXTRACT_SCRIPT $WHEELFILE > $INSTALLSCRIPT
 chmod a+x $INSTALLSCRIPT
 
 cd $originalPwd

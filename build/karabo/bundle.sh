@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/local/bin/bash
 # This file is part of Karabo.
 #
 # http://www.karabo.eu
@@ -156,7 +156,7 @@ if [ "$BUNDLE_ACTION" = "package" ]; then
     cd $PACKAGEDIR/../
     safeRunCommand "zip -qr ${PACKAGENAME}.zip $PACKAGENAME --exclude $PACKAGENAME/var/\* $PACKAGENAME/devices/\* $PACKAGENAME/installed/\* $PACKAGENAME/plugins/\*"
     # Create installation script
-    echo -e '#!/bin/bash\n'"VERSION=$PACKAGE_REPO_TAG" | cat - $EXTRACT_SCRIPT ${PACKAGENAME}.zip > $INSTALLSCRIPT
+    echo -e '#!/opt/local/bin/bash\n'"VERSION=$PACKAGE_REPO_TAG" | cat - $EXTRACT_SCRIPT ${PACKAGENAME}.zip > $INSTALLSCRIPT
     safeRunCommand "zip -A ${INSTALLSCRIPT}"
     chmod a+x $INSTALLSCRIPT
     rm ${PACKAGENAME}.zip

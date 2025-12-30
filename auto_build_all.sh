@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/local/bin/bash
 
 # Script for automated building and packaging of the entire karaboFramework.
 # Uses cmake 3.14+ for building the C++ components of the karaboFramework.
@@ -461,7 +461,8 @@ pushd $FRAMEWORK_BUILD_DIR
 # NOTE:
 # Please keep in sync with the cmake.configureSettings generated in
 # build/karabo/setupVSCodeCMake.py.
-safeRunCommand $EXTERN_DEPS_DIR/bin/cmake -DCMAKE_PREFIX_PATH=$EXTERN_DEPS_DIR \
+safeRunCommand cmake -DCMAKE_PREFIX_PATH=$EXTERN_DEPS_DIR \
+#safeRunCommand $EXTERN_DEPS_DIR/bin/cmake -DCMAKE_PREFIX_PATH=$EXTERN_DEPS_DIR \
     -DBUILD_UNIT_TESTING=$BUILD_UNIT_TESTING \
     -DBUILD_INTEGRATION_TESTING=$BUILD_INTEGRATION_TESTING \
     -DBUILD_LONG_RUN_TESTING=$BUILD_LONG_RUN_TESTING \

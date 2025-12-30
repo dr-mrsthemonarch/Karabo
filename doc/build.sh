@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/local/bin/bash
 # Copyright (C) European XFEL GmbH Schenefeld. All rights reserved.
 KARABO=$(readlink -f "$1")
 VERSION=$2
