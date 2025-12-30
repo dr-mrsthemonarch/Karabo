@@ -11,7 +11,7 @@ source "$scriptDir/../set_lsb_release_info.sh"
 
 CONAN_RECIPE_CHANNEL=py312
 DAEMONTOOLS_VERSION=1.11-karabo3
-NSS_VERSION=3.93
+NSS_VERSION=3.119
 
 declare -A CONAN_MIRRORS=(
     ["GNU_DOGADO"]="http://mirror.dogado.de/gnu/"
